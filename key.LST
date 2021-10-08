@@ -1,0 +1,284 @@
+C51 COMPILER V9.01   KEY                                                                   03/31/2021 14:24:55 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN key.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE key.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "key.h"
+   2          #include "reg52.h"
+   3          #include "lcd.h"
+   4          #include <string.h>
+   5          
+   6          #define GPIO_KEY P1
+   7          
+   8          sbit VOICE = P3^6;  //蜂鸣器控制引脚
+   9          char *code1 = "123456";
+  10          char *code2 = "654321";
+  11          char code_buf[10] = {0};
+  12          char lcd_num = 0;
+  13          char wrong_times = 0;
+  14          
+  15          /*******************************************************************************
+  16          * 函 数 名         : delay
+  17          * 函数功能       : 延时函数，i=1时，大约延时10us
+  18          *******************************************************************************/
+  19          void delay(unsigned int i)
+  20          {
+  21   1        while(i--); 
+  22   1      }
+  23          
+  24          void delayms(unsigned int ms)               
+  25          {
+  26   1        unsigned int a,b,c;
+  27   1        for(a=ms;a>0;a--)
+  28   1          for(b=10;b>0;b--)
+  29   1            for(c=85;c>0;c--);
+  30   1      }
+  31          
+  32          void beep()
+  33          {
+  34   1        unsigned char i , j;
+  35   1        for (i=0;i<100;i++)
+  36   1         {
+  37   2        
+  38   2            VOICE=!VOICE;              //BEEP取反
+  39   2            for (j = 0 ; j<250 ; j++)   //需要产生方波
+  40   2            _nop_();
+  41   2           
+  42   2         }
+  43   1      }
+  44          /*******************************************************************************
+  45          * 函 数 名         : KeyDown
+  46          * 函数功能       : 检测有按键按下并读取键值
+  47          * 输    入         : 无
+  48          * 输    出         : 无
+  49          *******************************************************************************/
+  50          unsigned char KeyDown(void)
+  51          {
+  52   1        char a=0;
+  53   1        unsigned char KeyValue = 0;
+  54   1        GPIO_KEY=0x0f;
+  55   1        if(GPIO_KEY!=0x0f)//读取按键是否按下
+C51 COMPILER V9.01   KEY                                                                   03/31/2021 14:24:55 PAGE 2   
+
+  56   1        {
+  57   2          delay(1000);//延时10ms进行消抖
+  58   2          if(GPIO_KEY!=0x0f)//再次检测键盘是否按下
+  59   2          { 
+  60   3            //测试行
+  61   3            GPIO_KEY=0X0F;
+  62   3            switch(GPIO_KEY)
+  63   3            {
+  64   4              case(0X07): KeyValue=0;break;
+  65   4              case(0X0b): KeyValue=1;break;
+  66   4              case(0X0d): KeyValue=2;break;
+  67   4              case(0X0e): KeyValue=3;break;
+  68   4            }
+  69   3            //测试列
+  70   3            GPIO_KEY=0XF0;
+  71   3            switch(GPIO_KEY)
+  72   3            {
+  73   4              case(0X70): KeyValue=KeyValue;break;
+  74   4              case(0Xb0): KeyValue=KeyValue+4;break;
+  75   4              case(0Xd0): KeyValue=KeyValue+8;break;
+  76   4              case(0Xe0): KeyValue=KeyValue+12;break;
+  77   4            }
+  78   3            while((a<100)&&(GPIO_KEY!=0xf0))   //检测按键松手检测
+  79   3            {
+  80   4              delay(300);
+  81   4              a++;
+  82   4            }     
+  83   3            return KeyValue;
+  84   3          }
+  85   2        }
+  86   1      
+  87   1            return 16;
+  88   1      }
+  89          
+  90          void key_judge(unsigned char key_value)
+  91          {
+  92   1        switch(key_value)
+  93   1        {
+  94   2          case 0:
+  95   2            strcat(code_buf,"0");
+  96   2          
+  97   2            if(strlen(code_buf)%2 !=0)
+  98   2              lcd_num = strlen(code_buf)/2+1;
+  99   2            else
+ 100   2              lcd_num = strlen(code_buf)/2;
+ 101   2            
+ 102   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 103   2            break;
+ 104   2            
+ 105   2          case 1:
+ 106   2            strcat(code_buf,"1");
+ 107   2            if(strlen(code_buf)%2 !=0)
+ 108   2              lcd_num = strlen(code_buf)/2+1;
+ 109   2            else
+ 110   2              lcd_num = strlen(code_buf)/2;
+ 111   2            
+ 112   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 113   2            
+ 114   2            break;
+ 115   2          
+ 116   2          
+ 117   2          case 2:
+C51 COMPILER V9.01   KEY                                                                   03/31/2021 14:24:55 PAGE 3   
+
+ 118   2            strcat(code_buf,"2");
+ 119   2            if(strlen(code_buf)%2 !=0)
+ 120   2              lcd_num = strlen(code_buf)/2+1;
+ 121   2            else
+ 122   2              lcd_num = strlen(code_buf)/2;
+ 123   2            
+ 124   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 125   2            
+ 126   2            break;
+ 127   2          
+ 128   2          case 3:
+ 129   2            strcat(code_buf,"3");
+ 130   2            if(strlen(code_buf)%2 !=0)
+ 131   2              lcd_num = strlen(code_buf)/2+1;
+ 132   2            else
+ 133   2              lcd_num = strlen(code_buf)/2;
+ 134   2            
+ 135   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 136   2            
+ 137   2            break;
+ 138   2            
+ 139   2          case 4:
+ 140   2            strcat(code_buf,"4");
+ 141   2            if(strlen(code_buf)%2 !=0)
+ 142   2              lcd_num = strlen(code_buf)/2+1;
+ 143   2            else
+ 144   2              lcd_num = strlen(code_buf)/2;
+ 145   2            
+ 146   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 147   2            
+ 148   2            break;    
+ 149   2          
+ 150   2          case 5:
+ 151   2            strcat(code_buf,"5");
+ 152   2            if(strlen(code_buf)%2 !=0)
+ 153   2              lcd_num = strlen(code_buf)/2+1;
+ 154   2            else
+ 155   2              lcd_num = strlen(code_buf)/2;
+ 156   2            
+ 157   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 158   2            
+ 159   2            break;
+ 160   2          
+ 161   2          case 6:
+ 162   2            strcat(code_buf,"6");
+ 163   2            if(strlen(code_buf)%2 !=0)
+ 164   2              lcd_num = strlen(code_buf)/2+1;
+ 165   2            else
+ 166   2              lcd_num = strlen(code_buf)/2;
+ 167   2            
+ 168   2            ShowQQChar(0x90,code_buf,lcd_num);
+ 169   2      
+ 170   2            break;
+ 171   2          
+ 172   2          case 7:
+ 173   2            strcat(code_buf,"7");
+ 174   2            if(strlen(code_buf)%2 !=0)
+ 175   2              lcd_num = strlen(code_buf)/2+1;
+ 176   2            else
+ 177   2              lcd_num = strlen(code_buf)/2;
+ 178   2            
+ 179   2            ShowQQChar(0x90,code_buf,lcd_num);
+C51 COMPILER V9.01   KEY                                                                   03/31/2021 14:24:55 PAGE 4   
+
+ 180   2            break;
+ 181   2          
+ 182   2          case 8://确认 
+ 183   2            
+ 184   2          if(strcmp(code_buf,code1) == 0 || strcmp(code_buf,code2) == 0)
+ 185   2          {
+ 186   3            WRCommand(0x01);
+ 187   3            ShowQQChar(0x80,"密码正确:",4);
+ 188   3            memset(code_buf, 0,sizeof(code_buf));
+ 189   3            wrong_times = 0;
+ 190   3          }
+ 191   2          else
+ 192   2          {
+ 193   3            WRCommand(0x01);
+ 194   3            ShowQQChar(0x80,"密码错误:",4);
+ 195   3            memset(code_buf, 0,sizeof(code_buf));
+ 196   3            wrong_times++;
+ 197   3          }
+ 198   2          delayms(500);
+ 199   2          WRCommand(0x01);
+ 200   2          if(wrong_times < 3)
+ 201   2          ShowQQChar(0x80,"请输入密码:",6);
+ 202   2          else
+ 203   2          ShowQQChar(0x80,"密码错误次数过多",8);  
+ 204   2            break;
+ 205   2          
+ 206   2          case 9://清空
+ 207   2          memset(code_buf, 0,sizeof(code_buf));
+ 208   2          WRCommand(0x01);
+ 209   2          ShowQQChar(0x80,"请输入密码:",6);
+ 210   2          if(wrong_times >=3)
+ 211   2          {
+ 212   3            wrong_times = 0;
+ 213   3          }   
+ 214   2            break;
+ 215   2          
+ 216   2          case 10:
+ 217   2            WRCommand(0x01);
+ 218   2            Add_FR();   
+*** WARNING C206 IN LINE 218 OF KEY.C: 'Add_FR': missing function-prototype
+ 219   2            
+ 220   2            break;
+ 221   2          
+ 222   2          case 11:
+ 223   2            WRCommand(0x01);
+ 224   2            Del_FR();
+*** WARNING C206 IN LINE 224 OF KEY.C: 'Del_FR': missing function-prototype
+ 225   2            
+ 226   2            break;
+ 227   2          
+ 228   2          case 12:
+ 229   2            WRCommand(0x01);
+ 230   2            ShowQQChar(0x80,"请按手指",4);
+ 231   2            press_FR(); 
+*** WARNING C206 IN LINE 231 OF KEY.C: 'press_FR': missing function-prototype
+ 232   2            
+ 233   2            break;
+ 234   2          
+ 235   2          case 13:
+ 236   2            
+ 237   2            break;
+ 238   2          
+C51 COMPILER V9.01   KEY                                                                   03/31/2021 14:24:55 PAGE 5   
+
+ 239   2          case 14:
+ 240   2            
+ 241   2            break;
+ 242   2          
+ 243   2          case 15:
+ 244   2            
+ 245   2            break;
+ 246   2          
+ 247   2          
+ 248   2          
+ 249   2        }
+ 250   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1116    ----
+   CONSTANT SIZE    =     88    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     18       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  3 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,61 @@
+C51 COMPILER V9.01   MAIN                                                                  03/31/2021 14:24:21 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "reg52.h"    //此文件中定义了单片机的一些特殊功能寄存器
+   2          #include "key.h"
+   3          #include "lcd.h"
+   4          #include "stdio.h"
+   5          #include "AS608.h"
+   6          
+   7          extern char wrong_times;
+   8          /*******************************************************************************
+   9          * 函 数 名       : main
+  10          * 函数功能     : 主函数
+  11          * 输    入       : 无
+  12          * 输    出       : 无
+  13          *******************************************************************************/
+  14          
+  15          void main()
+  16          {
+  17   1        
+  18   1        LCDInit();
+  19   1        //ShowQQChar(0x85,"星期",2);    //LCD  80                               
+  20   1        //ShowQQChar(0x97,"℃",1);      //     90
+  21   1        //ShowQQChar(0x88,"吃药时间:",4); //   88
+  22   1                                          // 98
+  23   1        ShowQQChar(0x80,"请输入密码:",6);
+  24   1        UART2_Init();//串口初始化
+  25   1        while(1)
+  26   1        {
+  27   2          key_judge(KeyDown());
+  28   2          
+  29   2          if(wrong_times >=3)
+  30   2          {
+  31   3            beep();
+  32   3          }     
+  33   2          
+  34   2          
+  35   2      
+  36   2            
+  37   2        }   
+  38   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2501    ----
+   CONSTANT SIZE    =    682    ----
+   XDATA SIZE       =    100    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     26      85
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

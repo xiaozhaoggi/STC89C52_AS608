@@ -1,0 +1,5 @@
+"main.obj",
+"key.obj",
+"lcd.obj" 
+TO "template" 
+RAMSIZE(256) 
